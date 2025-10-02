@@ -3,20 +3,21 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Models\SystemSetting;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Cache;
+use App\Models\SystemSetting;
 
-class SystemSettingServiceProvider extends ServiceProvider
+class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
      */
     public function register(): void
     {
-        // Register the settings as a singleton
-        $this->app->singleton('system.settings', function ($app) {
-            return Cache::remember('system_settings', 3600, function () {
+        // Register system settings as a singleton
+        $this->app->singleton('system.settings', function () {
+            // Try to get from cache, otherwise fetch from DB
+            return Cache::rememberForever('system_settings', function () {
                 return SystemSetting::first();
             });
         });
@@ -27,46 +28,48 @@ class SystemSettingServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Clear cache when settings are modified
-        $this->registerCacheInvalidation();
-        
-        // Share settings with all views
+        // Share system settings with all views
         $this->shareSettingsWithViews();
+
+        // Listen for changes to clear cache automatically
+        $this->registerCacheInvalidation();
+        View::composer('*', function ($view) {
+        $settings = Cache::remember('system_settings', 3600, function () {
+            return SystemSetting::first();
+        });
+        $view->with('systemSettings', $settings);
+    });
     }
 
     /**
-     * Register cache invalidation for system settings
+     * Share system settings with all views.
+     */
+    protected function shareSettingsWithViews(): void
+    {
+        View::composer('*', function ($view) {
+            $settings = app('system.settings');
+            $view->with('systemSettings', $settings);
+        });
+    }
+
+    /**
+     * Clear cache automatically when system settings change.
      */
     protected function registerCacheInvalidation(): void
     {
         $clearCache = function ($settings) {
+            // Clear cache
             Cache::forget('system_settings');
-            // Also clear the singleton instance
+
+            // Remove singleton instance so it reloads next time
             if ($this->app->bound('system.settings')) {
                 $this->app->forgetInstance('system.settings');
             }
         };
 
+        // Listen to Eloquent events
         SystemSetting::created($clearCache);
         SystemSetting::updated($clearCache);
         SystemSetting::deleted($clearCache);
-    }
-
-    /**
-     * Share system settings with all views
-     */
-    protected function shareSettingsWithViews(): void
-    {
-        try {
-            View::composer('*', function ($view) {
-                $settings = app('system.settings');
-                $view->with('systemSettings', $settings);
-            });
-        } catch (\Exception $e) {
-            // Handle gracefully if database doesn't exist or table not created yet
-            View::composer('*', function ($view) {
-                $view->with('systemSettings', null);
-            });
-        }
     }
 }

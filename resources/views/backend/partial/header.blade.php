@@ -3,11 +3,11 @@
                 <div class="container-fluid main-container">
                     <div class="d-flex">
                         <!-- sidebar-toggle-->
-                        <a class="logo-horizontal " href="index.html">
+                        {{-- <a class="logo-horizontal " href="index.html">
                             <img src="{{asset('/')}}admin/assets/images/brand/logo.png" class="header-brand-img desktop-logo" alt="logo">
                             <img src="{{asset('/')}}admin/assets/images/brand/logo-3.png" class="header-brand-img light-logo1"
                                 alt="logo">
-                        </a>
+                        </a> --}}
                         <!-- LOGO -->
                         
                         <div class="d-flex order-lg-2 ms-auto header-right-icons">
@@ -48,11 +48,7 @@
                                             </div>
                                         </div>
                                         <!-- COUNTRY -->
-                                        <div class="dropdown d-md-flex main-header-notification flag-dropdown">
-                                            <a class="nav-link icon text-center country-nav-link" data-bs-target="#country-selector" data-bs-toggle="modal">
-												<img class="header-icons language" alt="" src="{{asset('/')}}admin/assets/images/flags/us_flag.jpg">
-											</a>
-                                        </div>
+                                      
                                         <div class="dropdown  d-flex">
                                             <a class="nav-link icon theme-layout nav-link-bg layout-setting">
                                                 <span class="dark-layout">

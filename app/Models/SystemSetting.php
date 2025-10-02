@@ -3,14 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Cache;
 
 class SystemSetting extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        // System settings
         'system_title',
         'system_short_title',
         'system_logo',
@@ -23,65 +20,43 @@ class SystemSetting extends Model
         'timezone',
         'language',
         'copyright_text',
-
-        // Admin settings
-        'admin_title',
-        'short_title',
-        'admin_logo',
-        'admin_favicon',
-        'admin_copyright_text',
+        'site_name',
+        'designer_name',
     ];
 
     protected $appends = [
         'system_logo_url',
         'system_favicon_url',
-        'admin_logo_url',
-        'admin_favicon_url',
     ];
 
     /**
-     * Get or create the first settings record
+     * Get cached settings (single row only)
      */
-    public static function getSettings()
+    public static function getCached()
     {
-        return static::first() ?: new static();
+        return Cache::rememberForever('system_settings', function () {
+            return static::firstOrCreate(['id' => 1]);
+        });
     }
 
-    /**
-     * System logo URL accessor
-     */
+    public static function clearCache()
+    {
+        Cache::forget('system_settings');
+    }
+
+    // ------------------------
+    // File URL Accessors
+    // ------------------------
     public function getSystemLogoUrlAttribute()
     {
-        return $this->getFileUrl('system_logo', 'backend/assets/images/default-logo.png');
+        return $this->getFileUrl('system_logo', 'uploads/systems/logo/default-logo.png');
     }
 
-    /**
-     * System favicon URL accessor
-     */
     public function getSystemFaviconUrlAttribute()
     {
-        return $this->getFileUrl('system_favicon', 'backend/assets/images/default-favicon.ico');
+        return $this->getFileUrl('system_favicon', 'uploads/systems/favicon/default-favicon.png');
     }
 
-    /**
-     * Admin logo URL accessor
-     */
-    public function getAdminLogoUrlAttribute()
-    {
-        return $this->getFileUrl('admin_logo', 'backend/assets/images/default-logo.png');
-    }
-
-    /**
-     * Admin favicon URL accessor
-     */
-    public function getAdminFaviconUrlAttribute()
-    {
-        return $this->getFileUrl('admin_favicon', 'backend/assets/images/default-favicon.ico');
-    }
-
-    /**
-     * Resolve full asset URL for a file or fallback
-     */
     private function getFileUrl($field, $fallback)
     {
         if (!empty($this->$field) && file_exists(public_path($this->$field))) {
@@ -89,31 +64,8 @@ class SystemSetting extends Model
         }
         return asset($fallback);
     }
-
-    /**
-     * Cleanup files when deleting the model
-     */
-    protected static function booted()
+    public static function getSettings()
     {
-        static::deleting(function ($model) {
-            $model->cleanupFiles();
-        });
-    }
-
-    /**
-     * Delete uploaded files
-     */
-    public function cleanupFiles()
-    {
-        foreach ([
-            'system_logo',
-            'system_favicon',
-            'admin_logo',
-            'admin_favicon'
-        ] as $field) {
-            if ($this->$field && file_exists(public_path($this->$field))) {
-                @unlink(public_path($this->$field));
-            }
-        }
+        return self::getCached();
     }
 }

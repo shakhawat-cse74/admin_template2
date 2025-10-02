@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Web\backend\shakhawat;
+namespace App\Http\Controllers\Web\Backend\Shakhawat;
 
 use Illuminate\Http\Request;
 use App\Models\User;

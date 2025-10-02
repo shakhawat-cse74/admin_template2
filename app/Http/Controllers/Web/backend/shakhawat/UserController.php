@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\Web\backend\shakhawat;
+namespace App\Http\Controllers\Web\Backend\Shakhawat;
 
 
 use App\Http\Controllers\Controller;
