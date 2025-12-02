@@ -14,9 +14,20 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
+            $table->string('google_id')->nullable()->unique();
+            $table->string('phone')->nullable()->unique();
+            $table->text('avatar')->nullable();
+            $table->string('device_id')->nullable()->unique();
+            $table->boolean('is_admin')->default(false);
+            $table->boolean('is_guest')->default(false);
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
+            $table->string('otp', 6)->nullable();
+            $table->integer('loyalty_points')->default(0);
+            $table->string('referral_code')->unique()->nullable();
+            $table->timestamp('last_free_entry_at')->nullable();
+            $table->timestamp('otp_created_at')->nullable();
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();

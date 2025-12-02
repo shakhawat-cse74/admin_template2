@@ -1,14 +1,15 @@
 <?php
 
-use App\Http\Controllers\Web\backend\shakhawat\BackendController;
-use App\Http\Controllers\Web\backend\shakhawat\UserController;
-use App\Http\Controllers\Web\backend\shakhawat\SettingController;
-use App\Http\Controllers\Web\backend\shakhawat\DynamicPagesController;
-use App\Http\Controllers\Web\backend\shakhawat\ProfileSettingController;
-use App\Http\Controllers\Web\backend\shakhawat\SystemSettingController;
-use App\Http\Controllers\Web\backend\shakhawat\AdminSettingController;
-use App\Http\Controllers\Web\backend\shakhawat\RoleController;
-use App\Http\Controllers\Web\backend\shakhawat\PermissionController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Web\Backend\Shakhawat\BackendController;
+use App\Http\Controllers\Web\Backend\Shakhawat\UserController;
+use App\Http\Controllers\Web\Backend\Shakhawat\SettingController;
+use App\Http\Controllers\Web\Backend\Shakhawat\DynamicPagesController;
+use App\Http\Controllers\Web\Backend\Shakhawat\ProfileSettingController;
+use App\Http\Controllers\Web\Backend\Shakhawat\SystemSettingController;
+use App\Http\Controllers\Web\Backend\Shakhawat\AdminSettingController;
+use App\Http\Controllers\Web\Backend\Shakhawat\RoleController;
+use App\Http\Controllers\Web\Backend\Shakhawat\PermissionController;
 
 
 Route::middleware(['auth:sanctum',config('jetstream.auth_session'),'verified'])->group(function () {
@@ -41,7 +42,7 @@ Route::middleware(['auth:sanctum',config('jetstream.auth_session'),'verified'])-
     Route::post('/profile/update', [ProfileSettingController::class, 'updateProfile'])->name('profile.update');
     Route::post('/profile/password/update', [ProfileSettingController::class, 'updatePassword'])->name('profile.password.update');
     Route::post('/profile/avatar', [ProfileSettingController::class, 'updatePhoto'])->name('profile.avatar.update');
-    Route::delete('/profile/avatar', [ProfileController::class, 'removeAvatar'])->name('profile.avatar.remove');
+    Route::delete('/profile/avatar', [ProfileSettingController::class, 'removeAvatar'])->name('profile.avatar.remove');
 
     //System Settings
     Route::get('/system-settings', [SystemSettingController::class, 'edit'])->name('system-settings.edit');
@@ -59,5 +60,5 @@ Route::middleware(['auth:sanctum',config('jetstream.auth_session'),'verified'])-
     Route::get('role/permission/{id}', [RoleController::class, 'permission'])->name('role.permission');
     Route::post('role/set-permission', [RoleController::class, 'setPermission'])->name('role.setPermission');
     Route::delete('role/delete/{id}', [RoleController::class, 'destroy'])->name('role.destroy');
-    
+
 });
